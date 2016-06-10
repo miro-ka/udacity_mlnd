@@ -274,7 +274,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO: Minimum price of the data</span>
@@ -290,7 +290,7 @@ div#notebook {
 <span class="n">median_price</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
 
 <span class="c1"># TODO: Standard deviation of prices of the data</span>
-<span class="n">std_price</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="n">std_price</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># Show the calculated statistics</span>
 <span class="k">print</span> <span class="s2">&quot;Statistics for Boston housing dataset:</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -317,7 +317,7 @@ Minimum price: $105,000.00
 Maximum price: $1,024,800.00
 Mean price: $454,342.94
 Median price $438,900.00
-Standard deviation of prices: $165,340.28
+Standard deviation of prices: $165,171.13
 </pre>
 </div>
 </div>
@@ -1690,6 +1690,22 @@ MzNrgv8Hd4eyKre3PH0AAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer: </strong></p>
+<p><strong>curve 1 - max_depth = 1</strong></p>
+<ul>
+<li>from the plot we can see that the model is underfitting (high bias). The score is around 0.5 and it is decreasing (what is bad). The distance between training and testing score is small after around 150 iterations. Adding more training points would most probably not help. </li>
+</ul>
+<p><strong>curve 1 - max_depth = 3</strong></p>
+<ul>
+<li>the score 150 is around 0.8 what seems like a relatively good max_depth option. Also the relation between training and testing score is small, what points to good bias and variance. I think that adding more training points might help in this case.</li>
+</ul>
+<p><strong>curve 1 - max_depth = 6</strong></p>
+<ul>
+<li>the training score is around 0.9 (what is good), but the test score is around 0.7. This indicates that the model might have a problem with overfitting (high variance). Adding more training points will not help as we can see from the plot that the train/test score is starting to have decreasing tendency</li>
+</ul>
+<p><strong>curve 1 - max_depth = 10</strong></p>
+<ul>
+<li>training score close to 1.0 and test score around 0.7 indicates to clear model overfitting. Here I think that adding more training points will not help to improve the model.</li>
+</ul>
 <p>I'm chooseing the 2nd plot with max_depth = 3. With more training points the training score is getting closer to the testing. It seams, that after approximately 150 of training iterations both the training and testing score is more or less equal - what means that our prediction model should be stable. Important observation here is, that score has decreased little bit but that after 150 itarations it has stable tendency (what is good).</p>
 
 </div>
@@ -2272,8 +2288,9 @@ clf.fit(iris.data, iris.target)
 <li>split all your dataset into k same size groups (for example 10)</li>
 <li>pick one group and use it for test evaluation</li>
 <li>the rest k-1 will be used for training</li>
-<li>where you are done pick next group for testing and training</li>
+<li>when you are done pick next group for testing and training</li>
 </ul>
+<p>At the end when we are done with all runs, we avarage the test results from the x experiments and use in our performance measurment.</p>
 <p>In this way we will have a model that was trained and tested on all the data. This will be more computational expensive but should give better results.</p>
 
 </div>
@@ -2309,7 +2326,7 @@ clf.fit(iris.data, iris.target)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="prompt input_prompt">In&nbsp;[86]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO: Import &#39;make_scorer&#39;, &#39;DecisionTreeRegressor&#39;, and &#39;GridSearchCV&#39;</span>
@@ -2328,7 +2345,8 @@ clf.fit(iris.data, iris.target)
     <span class="n">regressor</span> <span class="o">=</span> <span class="n">DecisionTreeRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># TODO: Create a dictionary for the parameter &#39;max_depth&#39; with a range from 1 to 10</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">)}</span>
+    <span class="c1">#params = {&#39;max_depth&#39;:(1,2,3,4,5,6,7,8,9,10)}</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)}</span>
     
     <span class="c1"># TODO: Transform &#39;performance_metric&#39; into a scoring function using &#39;make_scorer&#39; </span>
     <span class="n">scoring_fnc</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">performance_metric</span><span class="p">)</span>
@@ -2372,7 +2390,7 @@ clf.fit(iris.data, iris.target)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="prompt input_prompt">In&nbsp;[87]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Fit the training data to the model using grid search</span>
@@ -2501,6 +2519,19 @@ Predicted selling price for Client 3&apos;s home: $870,450.00
 <li>number of rooms (more is better)</li>
 <li>household net worth (smaller better)</li>
 <li>student-teacher rate (smaller better)</li>
+</ul>
+<p>Based on the below statistics we can say that the:</p>
+<ul>
+<li><strong>Client 3</strong> is an expensive house owner (house price is way above mean and close to maximum price. </li>
+<li><strong>Client 1</strong> is an avarage house owner (price 412950 is very close to mean price). </li>
+<li><strong>Client 2</strong> is a relatively poor hose owner, because the estimated price is below the data avarage/mean.</li>
+</ul>
+<p>Data statistics:</p>
+<ul>
+<li>Minimum price: $105,000.00</li>
+<li>Maximum price: $1,024,800.00</li>
+<li>Mean price: $454,342.94</li>
+<li>Median price $438,900.00</li>
 </ul>
 <p>The code with my optimized model confirms my predictions:</p>
 <p>Predicted selling price for Client 1's home: $412,950.00
