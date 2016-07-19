@@ -517,7 +517,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="prompt input_prompt">In&nbsp;[179]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO: Make a copy of the DataFrame, using the &#39;drop&#39; function to drop the given feature</span>
@@ -579,8 +579,8 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
-<p>I selected <strong>Milk</strong> feature. The predicted score was 0.444.</p>
-<p>Is this feature is necessary for identifying customers' spending habits? From the final prediction score 0.444 I would assume that the <strong>Milk</strong> feature could be necessary for identifying the spending habits. The score is around 36% without spending more time on tuning the training model.</p>
+<p>I have randomly selected <strong>Milk</strong> feature. The predicted score was 0.444.</p>
+<p>A) <strong>Is this feature is necessary for identifying customers' spending habits?</strong> From the final prediction score 0.444 I would assume that the <strong>Milk</strong> feature is not very good candidate for identifying the spending habits. The score is around 44% without spending more time on tuning the training model. After a quick check of all the features I found out that <strong>Grocery</strong> feature gave me 74% score. So the best approach in the future would be to try all the features and choose the best one.</p>
 
 </div>
 </div>
@@ -6934,7 +6934,14 @@ Once you have performed this implementation, the dataset will be stored in the v
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
-<p><strong>A) Are there any data points considered outliers for more than one feature?</strong> Yes, I can see data point #75 in Detergents_Paper featured and as well in Grocery feature.</p>
+<p><strong>A) Are there any data points considered outliers for more than one feature?</strong> Yes, I can see that following outliers are in more than one feature:</p>
+<ul>
+<li>data point #38</li>
+<li>data point #66</li>
+<li>data point #75</li>
+<li>data point #128</li>
+<li>data point #154</li>
+</ul>
 <p><strong>B) Should these data points be removed from the dataset?</strong> In this case I don't think so. The reason is that outliers should be removed if it is obvious that the outlier is due to incorrectly entered or measured data. In our case the outliers might be a properly recorded customer. It would be interesting to train model with and without outliers and compare their socre.</p>
 <p><strong>C) If any data points were added to the outliers list to be removed, explain why</strong> Because of the reason above I have not added outliers to the deleted list.</p>
 
@@ -7372,7 +7379,8 @@ zKw/vh/eFsBqM/v0vCcT8oOQzgV8eVAfX/c9wGbn3Ngg6hduQj0PHvf/w1eObxz6/wRRt3AU6nlw
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
 <p><strong>A) How much variance in the data is explained in total by the first and second principal component?</strong> Component #1 has 0.4423 Explained variance and component #2 0.2766. Total this would make Explained variance of 0.7189.</p>
-<p><strong>B) Discuss what the first four dimensions best represent in terms of customer spending:</strong></p>
+<p><strong>B) How much variance in the data is explained in total by the first four PCA dimensions?</strong> Total variance for the first four dimensions would make approximately 93% (0.4423 + 0.2766 + 0.1162 + 0.0962).</p>
+<p><strong>C) Discuss what the first four dimensions best represent in terms of customer spending:</strong></p>
 <ul>
 <li><p><strong>Dimension #1</strong></p>
 <ul>
@@ -8809,7 +8817,10 @@ True centers:
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
-<p>I would assign our sample points to following cluser segments:</p>
+<p><strong>A) What set of establishments could each of the customer segments represent?</strong> 
+<em>Segment 0: Cafe/Bar - in avarage lowest values.</em>Segment 1: Larger Restaurant - reason is High value of Fresh
+*Segment 2: Retailer - reason are overall high values, especially  Detergents_Paper</p>
+<p><strong>B) I would assign our sample points to following cluser segments:</strong></p>
 <ul>
 <li><p><strong>Sample point #0 -&gt; Cluster 0.</strong> The reason is that from below data we had most occurences of Segment 0:</p>
 <ul>
@@ -8950,8 +8961,10 @@ Sample point 2 predicted to be in Cluster 0
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
-<p><strong> How could the wholesale distributor use the structure of the clustering data you've found to assist a supervised learning analysis?</strong> For example from the found data we see that customers in Segment 0 are mostly interested in Fresh, Milk and Grocery. So for example if the distributor wants to start selling pencils,..it most probably will be not interesting item for customers in Segment 0. On another side, customers in this segment might be interesting in jogurts and non-alcoholic drinks.</p>
-<p><strong>What other input feature could the supervised learner use besides the six product features to help make a prediction?</strong> For example: Day and Time of shopping/ordering - might help to plan/organize stock.</p>
+<p><strong> C) how a supervised learner would classify a new customer to one of the segments?</strong>
+For example after several first purchases of the new customer, the supervised learner should be able to properly classify the customer into one of our segments (by using K-NN or any of supervised algorithms). Where featues would be the same is now (Fresh, Milk, Grocery, Frozen, Detergents_Paper or Delicatessen) and labels would be our new Segments.</p>
+<p><strong> B) How could the wholesale distributor use the structure of the clustering data you've found to assist a supervised learning analysis?</strong> For example from the found data we see that customers in Segment 0 are mostly interested in Fresh, Milk and Grocery. So for example if the distributor wants to start selling pencils,..it most probably will be not interesting item for customers in Segment 0. On another side, customers in this segment might be interesting in jogurts and non-alcoholic drinks.</p>
+<p><strong> C) What other input feature could the supervised learner use besides the six product features to help make a prediction?</strong> For example: Day and Time of shopping/ordering - might help to plan/organize stock.</p>
 
 </div>
 </div>
@@ -8969,7 +8982,7 @@ Sample point 2 predicted to be in Cluster 0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[171]:</div>
+<div class="prompt input_prompt">In&nbsp;[180]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Display the clustering results based on &#39;Channel&#39; data</span>
