@@ -16,7 +16,7 @@ class LearningAgent(Agent):
         # TODO: Initialize any additional variables here
         self.state = {}
         self.actions = [None, 'forward', 'left', 'right']
-        self.state_roots = ['light', 'next_waypoint', 'right', 'left'] #'right', 'left'
+        self.state_roots = ['light', 'next_waypoint'] #'right', 'left'
         self.Qtable = {}
         #tuning variables
         self.gamma = 0.1 # discount factor
