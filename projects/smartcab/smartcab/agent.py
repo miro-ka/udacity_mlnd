@@ -36,6 +36,7 @@ class LearningAgent(Agent):
         print "overall_iterations: ", self.overall_iterations
         print "overall_simulations: ", self.overall_simulations
         print "total_sucess: ", self.total_sucess
+        print "self.epsilon: ", self.epsilon
         if self.total_sucess == 0:
             print "sucess_rate: 0%"
         else:
@@ -86,7 +87,7 @@ class LearningAgent(Agent):
                 return state_tuple[random.choice([0,1,2,3])]
 
             #check epsilon greedy
-            if(self.env.t % self.epsilon) == 0:
+            if((self.env.t != 0) and ((self.env.t % self.epsilon) == 0)):
                 return state_tuple[random.choice([0,1,2,3])]
                 
             max_value = -sys.maxint - 1
@@ -108,6 +109,7 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
         inputs.update({'next_waypoint': self.next_waypoint})
+        inputs.update({'deadline': deadline})
         
         # Update state
         #print "\n\ninputs:", inputs
@@ -134,6 +136,7 @@ class LearningAgent(Agent):
         new_inputs = self.env.sense(self)
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator        
         new_inputs.update({'next_waypoint': self.next_waypoint})
+        new_inputs.update({'deadline': self.env.get_deadline(self)})
         
         map(lambda state: new_state.update({state: new_inputs[str(state)]}), self.state_roots)
         #print "new_state:", new_state
@@ -155,6 +158,9 @@ class LearningAgent(Agent):
         
         if self.env.trial_data['success'] == 1:
             self.total_sucess += 1
+            #for every 10 correct predictions we decay the exploration rate
+            if(self.total_sucess > 1 and ((self.total_sucess % 10) == 0)):
+                self.epsilon += 1 
 
         #print "self.next_waypoint:", self.next_waypoint
         #print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
@@ -171,7 +177,7 @@ def run():
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
-    sim = Simulator(e, update_delay=0.1, display=True)  # create simulator (uses pygame when display=True, if available)
+    sim = Simulator(e, update_delay=0.5, display=True)  # create simulator (uses pygame when display=True, if available)
     # NOTE: To speed up simulation, reduce update_delay and/or set display=False
 
     sim.run(n_trials=100)  # run for a specified number of trials

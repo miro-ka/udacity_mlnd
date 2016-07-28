@@ -49,6 +49,7 @@ So far I didn't observe very much of interesting behavior.
   
  * **waypoint**: The next waypoint location relative to its current location and heading.  ['right', 'left', 'forward']
  
+ * **deadline**: Decrementing iteration counter given to smartcab reach the goal/target.  
  
 Generally, the best and in our scenario also safest would be to consider all the given input states  (light, oncoming, right, left, waypoint). Down side from choosing all the states is, that it might take more time (learning curve will be not very steep), which means that it might take more time to find global optimum. It will be worth to perform more tests and observe the relationship between number of states and learning curve.
 
@@ -61,8 +62,17 @@ Selected states:
  
 **Question 2: Why do you believe each of these states to be appropriate for this problem?**
 Below are reasons why I selected following states. The reason why I have chosen them is that they give most information and possibility value.
+
+**Selected states:**
 * **waypoint**: gives the most Important information about our goal (recommended future step)
 * **light**: our smartcab will be facing this state every iteration, so invalid action would cause to negative reward every time step.
+
+**Not included states:**
+* **right**: The state information is important/used only in the combination with red-light. Otherwise this information should be not important. Because of the low use and probability of occurrence I have decided to not include this side into our model. Including the model would cause longer exploration phase without very much added value.
+* **left**: Reason why didn't include left state, is the same as described above. The chance that the state during the simulation is very low.
+* **oncoming**: Similar as above the chance of occurring the state together with green-light and left state is very low. 
+* **deadline**: Deadline is randomly chosen value from the environment. In some cases the value can be up to 45, what means that to train a Q_table with extra 45 states would require a lot of extra training time.
+
 
  
 **OPTIONAL**
@@ -77,6 +87,9 @@ Below are reasons why I selected following states. The reason why I have chosen 
 **QUESTION: What changes do you notice in the agent's behavior when compared to the basic driving agent when random actions were always taken? Why is this behavior occurring?**
 
 Main difference that I observed is that overall agent predictions and arrives to goal are different after several iterations. At the beginning the initial several iterations are relatively similar, because of the Q_table is at initially empty and  actions are randomly selected (the same as when we chose random actions). After a while we can see that the behavior of Q-Learning Driving Agent is starting to act according to waypoint (the smartcab is starting to nicely move towards the goal). So after several iterations, we can clearly see the difference between the random and Q-Learning agent, that in the random action scenario the car arrives to the goal only very seldom and in Q-Learning case it arrives nearly every time (after the Q-table values have been taught).
+
+I have also implemented a slow decay/decrease logic to our exploration rate (epsilon). Current implementation increases the exploration distance by 1 for every 10 successful destination. 
+This implements to the agent the transition between exploration (learning the environment) to exploitation (using the knowledge).
 
 
 ## Task 4: Improve the Q-Learning Driving Agent
@@ -153,5 +166,9 @@ From the above results we can see that the best results of 96%, we have got with
 
 **QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?**
 
-The chosen states (waypoint and light gives the best prediction rate) but it reaches the destination in an average possible time. Optimal policy would be to have 100% accuracy and use as input all the states. In theory this should be achieved after a lot of iterations
+The chosen states waypoint and light gives the best prediction rate but it reaches the destination in an average possible time. Optimal policy would be to have 100% accuracy and use as input all the states. In theory this should be achieved after a lot of iterations. 
+
+A very useful control of our trained model is our Q-table, where we can see what actions will our model choose with specific sates combination. By observing the final Q-table we can see that all the actions are properly taught if we consider only the included states (light and next_waypoint).
+
+On other side we can observe during the simulation that the model does not handle well situations where left, right or oncoming states are involved. These are the states that we didn't include into our model. 
 
