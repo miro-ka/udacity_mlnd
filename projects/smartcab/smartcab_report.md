@@ -212,6 +212,33 @@ From the above results we can see that the best results of 98%, we have got with
 
 **QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?**
 
+In the table below are results from different combinations of gamma (discount factor), alpha (learning rate) and epsilon (exploration rate). We can see that the best results of success rate and number of total iterations is in simulation ID 4, where we the model achieved 99% of success percentual rate in 1347 iterations. The combination of 0.1 for discount factor (gamma), 0.9 for learning-rate (alpha) and 10 for exploration rate (epsilon) was the most successful one. We need to mention that values of exploration rate and discount factor and changing during the simulation. Exploration rate is slowly decreasing and gamma value is slowly increasing. Reason why we are getting the best results from above mentioned combination might be following:
+*  High learning rate alpha (0.9 and increasing) - will make the agent override old information with the new one at higher rate. Reason why the results are good might be because of our agent follows waypoint input (short-time goal), which should give us the shortest path to our target. And since new waypoint is our input during every iteration, we do not need pay very attention to our old information.
+
+* Low discount factor gamma (0.1) - Similar reason as described above explains good results from 0.1 gamma value. With low gamma value, the agent is "myopic" (or short-sighted) and it only considers current rewards.
+
+
+ Sim id | gamma | alpha | epsilon | total iterations | success rate
+ --- | --- | --- | --- | --- | ---
+ 1 | 0.1 | 0.1 | 1 | 1447 | 95.0 %
+ 2 | 0.1 | 0.1 | 10 | 1319 | 96.0 %
+ 3 | 0.1 | 0.5 | 10 | 1374 | 99.0 %
+ **4** | **0.1** | **0.9** | **10** | **1347** | **99.0 %**
+ 5 | 0.5 | 0.5 | 10 | 1322 | 96.0 %
+ 6 | 0.9 | 0.5 | 10 | 1425 | 99.0 %
+ 7 | 0.9 | 0.1 | 10 | 1417 | 96.0 %
+
+
+
+Final implementation results plot:
+
+![Final implementation results](https://github.com/mkarpis/udacity_mlnd/raw/master/projects/smartcab/report_images/final_plot.png)
+
+self.gamma = 0.9 # discount factor
+self.alpha = 0.1 # learning rate
+self.epsilon = 10 # exploration rate 
+
+ 
 The chosen input waypoint, light, right, left and oncoming gives the best success rate, but it reaches the destination in an average possible time. As mentioned above, by increasing the number of training iterations the general number of steps should increase. Reason is that some states have still been in their initial value 2.
 
 A very useful control of our trained model is our Q-table, where we can see what actions will our model choose with specific sates combination. By observing the final Q-table we can see that all the actions are properly taught if we consider only the included states (light and next_waypoint).

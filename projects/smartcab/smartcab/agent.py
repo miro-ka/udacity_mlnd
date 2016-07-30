@@ -20,8 +20,8 @@ class LearningAgent(Agent):
         #self.state_roots = ['light', 'next_waypoint'] 
         self.Qtable = {}
         #tuning variables
-        self.gamma = 0.1 # discount factor
-        self.alpha = 0.5 # learning rate
+        self.gamma = 0.9 # discount factor
+        self.alpha = 0.1 # learning rate
         self.epsilon = 10 # exploration rate (select random action every x iteration)
         self.overall_simulations = 0
         self.overall_iterations = 0
@@ -86,7 +86,7 @@ class LearningAgent(Agent):
             #print "are_the_same:", are_the_same
             if are_the_same:
                 return state_tuple[random.choice([0,1,2,3])]
-
+                
             #check epsilon greedy
             if((self.env.t != 0) and ((self.env.t % self.epsilon) == 0)):
                 return state_tuple[random.choice([0,1,2,3])]
@@ -159,6 +159,7 @@ class LearningAgent(Agent):
         
         if self.env.trial_data['success'] == 1:
             self.total_sucess += 1
+            self.epsilon += 1 #decay e-greedy implementation
             #for every 10 correct predictions we decay the exploration rate
             if(self.total_sucess > 1 and ((self.total_sucess % 10) == 0) and (self.gamma < 1)):
                 self.gamma += 0.1 
@@ -178,7 +179,7 @@ def run():
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
-    sim = Simulator(e, update_delay=0.5, display=True)  # create simulator (uses pygame when display=True, if available)
+    sim = Simulator(e, update_delay=0.01, display=True)  # create simulator (uses pygame when display=True, if available)
     # NOTE: To speed up simulation, reduce update_delay and/or set display=False
 
     sim.run(n_trials=100)  # run for a specified number of trials
