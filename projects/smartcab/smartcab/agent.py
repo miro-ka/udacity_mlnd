@@ -16,7 +16,8 @@ class LearningAgent(Agent):
         # TODO: Initialize any additional variables here
         self.state = {}
         self.actions = [None, 'forward', 'left', 'right']
-        self.state_roots = ['light', 'next_waypoint'] #'right', 'left'
+        self.state_roots = ['light', 'next_waypoint', 'right', 'left', 'oncoming'] 
+        #self.state_roots = ['light', 'next_waypoint'] 
         self.Qtable = {}
         #tuning variables
         self.gamma = 0.1 # discount factor
@@ -36,7 +37,7 @@ class LearningAgent(Agent):
         print "overall_iterations: ", self.overall_iterations
         print "overall_simulations: ", self.overall_simulations
         print "total_sucess: ", self.total_sucess
-        print "self.epsilon: ", self.epsilon
+        print "self.gamma: ", self.gamma
         if self.total_sucess == 0:
             print "sucess_rate: 0%"
         else:
@@ -159,8 +160,8 @@ class LearningAgent(Agent):
         if self.env.trial_data['success'] == 1:
             self.total_sucess += 1
             #for every 10 correct predictions we decay the exploration rate
-            if(self.total_sucess > 1 and ((self.total_sucess % 10) == 0)):
-                self.epsilon += 1 
+            if(self.total_sucess > 1 and ((self.total_sucess % 10) == 0) and (self.gamma < 1)):
+                self.gamma += 0.1 
 
         #print "self.next_waypoint:", self.next_waypoint
         #print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]

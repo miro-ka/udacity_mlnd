@@ -38,7 +38,7 @@ So far I didn't observe very much of interesting behavior.
 
 **Question 1: What states have you identified that are appropriate for modeling the smartcab and environment?**
 
- Currently we have available combinations between following states/inputs:
+ Currently we have available combinations between following inputs and their states:
  * **light**: ['red', 'green']
  
  * **oncoming**: Information whether a car is approaching from oncoming(forward) direction, and the direction where the vehicle is heading. [None, 'right', 'left', 'forward']
@@ -50,34 +50,41 @@ So far I didn't observe very much of interesting behavior.
  * **waypoint**: The next waypoint location relative to its current location and heading.  ['right', 'left', 'forward']
  
  * **deadline**: Decrementing iteration counter given to smartcab reach the goal/target.  
- 
-Generally, the best and in our scenario also safest would be to consider all the given input states  (light, oncoming, right, left, waypoint). Down side from choosing all the states is, that it might take more time (learning curve will be not very steep), which means that it might take more time to find global optimum. It will be worth to perform more tests and observe the relationship between number of states and learning curve.
 
-> Note: After trying to include all the states into the Q_table I could see that after relatively long time some of the state values have still not been used (had initial value), and the results did not show some bigger improvements.
+Because of the simulated model should have a real world like behavior, it is necessary to include all the inputs that a driver would receive in a real world. Our final output action should be based on the combination of current states and rules, it is necessary to include all the inputs that are required for the rules [rules](#rules).   
+Below is a list of these inputs:
+* light
+* oncoming
+* right
+* left
+* waypoint
 
-Selected states:
-* **waypoint**
-* **light** 
- 
+All the above mentioned inputs contain information which is used in our traffic rules to output the correct action.
+
  
 **Question 2: Why do you believe each of these states to be appropriate for this problem?**
-Below are reasons why I selected following states. The reason why I have chosen them is that they give most information and possibility value.
 
-**Selected states:**
-* **waypoint**: gives the most Important information about our goal (recommended future step)
-* **light**: our smartcab will be facing this state every iteration, so invalid action would cause to negative reward every time step.
+**Selected inputs and the reason why they are included into our reinforcement learning model:**
+* **waypoint**: gives the direction where the smartcab should move. This is the most important information about our future goal (recommended future step)
+
+* **light, right, left and oncoming**: All of these inputs are necessary for the prediction, because of they are required in our rules scheme. By correctly following the combination of rules and input states, the agent should be able to suggest appropriate output action.
 
 **Not included states:**
-* **right**: The state information is important/used only in the combination with red-light. Otherwise this information should be not important. Because of the low use and probability of occurrence I have decided to not include this side into our model. Including the model would cause longer exploration phase without very much added value.
-* **left**: Reason why didn't include left state, is the same as described above. The chance that the state during the simulation is very low.
-* **oncoming**: Similar as above the chance of occurring the state together with green-light and left state is very low. 
 * **deadline**: Deadline is randomly chosen value from the environment. In some cases the value can be up to 45, what means that to train a Q_table with extra 45 states would require a lot of extra training time.
 
 
  
 **OPTIONAL**
-1. *How many states in total exist for the smartcab in this environment?* If we consider that our states have following parameters/combinations we have total **129 states**. 129 is calculated from following values (2 x lights) x (4 x oncoming) x (4 x right) x (4 x left)
-2. Does this number seem reasonable given that the goal of Q-Learning is to learn and make informed decisions about each state? I would say, that yes. It might take longer time to find global optimum, but in real-life situation it would be necessary to include all the states.
+1. *How many states in total exist for the smartcab in this environment?* 
+Below is a list of inputs and their states:
+ * lights - 2
+ * oncoming - 4
+ * right - 4
+ * left - 4
+ * next_waypoint - 4
+ 
+ This makes together a sum of 18 states, and their total combination is 512.
+2. Does this number seem reasonable given that the goal of Q-Learning is to learn and make informed decisions about each state? I would say, that yes. It might take longer time to find global optimum, but in real-life situation it is necessary to include all the inputs.
 3. Why or why not?
 
 
@@ -88,87 +95,124 @@ Below are reasons why I selected following states. The reason why I have chosen 
 
 Main difference that I observed is that overall agent predictions and arrives to goal are different after several iterations. At the beginning the initial several iterations are relatively similar, because of the Q_table is at initially empty and  actions are randomly selected (the same as when we chose random actions). After a while we can see that the behavior of Q-Learning Driving Agent is starting to act according to waypoint (the smartcab is starting to nicely move towards the goal). So after several iterations, we can clearly see the difference between the random and Q-Learning agent, that in the random action scenario the car arrives to the goal only very seldom and in Q-Learning case it arrives nearly every time (after the Q-table values have been taught).
 
-I have also implemented a slow decay/decrease logic to our exploration rate (epsilon). Current implementation increases the exploration distance by 1 for every 10 successful destination. 
-This implements to the agent the transition between exploration (learning the environment) to exploitation (using the knowledge).
+I have also implemented a slow increase logic to our discount factor (gamma) variable. Starting with a lower discount factor and increasing it towards its final value usually yields accelerated learning. Current implementation increases the discount factor by 0.1 for every 10 successful destinations. 
 
 
 ## Task 4: Improve the Q-Learning Driving Agent
 
 **QUESTION: Report the different values for the parameters tuned in your basic implementation of Q-Learning. For which set of parameters does the agent perform best? How well does the final driving agent perform?**
 
-Below is a final Q_table after 50 simulations of 100 iterations with states **waypoint + light**
+Below is a final Q_table after 100 simulations of 100 iterations with inputs **waypoint, light, right, left and oncoming. If take a look a closer look at the Q-table values (for example the first row), we can see that during the training we didn't train every combination of states. I would expect that with extending the training time, we should increase the number of trained state combination, what should reflect in our output (more rewards in a shorter time).
 
-| State        | Action            | Value  |
-| ------------- |:-------------:| -----:|
-| {'light': 'green', 'next_waypoint': 'left'} | 'None'| 0.13284552719759363|
-|  | 'forward'| -0.4138769560481279|
-|  | 'left'| 3.6721705432802976|
-|  | 'right'| -0.21665451109787753|
-| {'light': 'red', 'next_waypoint': None} | 'None'| 2|
-|  | 'forward'| 2|
-|  | 'left'| 2|
-|  | 'right'| 2|
-| {'light': 'red', 'next_waypoint': 'left'} | 'None'| 1.496838296197925e-10|
-|  | 'forward'| -0.16999999999999998|
-|  | 'left'| -0.575849375|
-|  | 'right'| -0.18955632421875002|
-| {'light': 'red', 'next_waypoint': None} | 'None'| 2|
-|  | 'forward'| 2|
-|  | 'left'| 2|
-|  | 'right'| 2|
-| {'light': 'red', 'next_waypoint': 'right'} | 'None'| 0.2545723197572889|
-|  | 'forward'| 0.6|
-|  | 'left'| -0.16999999999999998|
-|  | 'right'| 2.2232554786862897|
-| {'light': 'green', 'next_waypoint': 'forward'} | 'None'| 0.14941584689645235|
-|  | 'forward'| 7.425291203052964|
-|  | 'left'| -0.2674857421875|
-|  | 'right'| -0.4499045108327552|
-| {'light': 'green', 'next_waypoint': 'right'} | 'None'| 0.18975000000000003|
-|  | 'forward'| -0.20218877438843852|
-|  | 'left'| -0.3998796987982248|
-|  | 'right'| 2.5999017995259983
-| {light': 'red', 'next_waypoint': 'forward'} | 'None'| 6.24207904822194e-68|
-|  | 'forward'| -0.9430592890624999|
-|  | 'left'| -0.9465663887097309|
-|  | 'right'| -0.5145314759644966
+```
+{'next_waypoint': 'forward', 'right': 'right', 'light': 'green', 'oncoming': None, 'left': None} [(None, 2.0), ('forward', 2), ('left', 2), ('right', 1.65)]
+{'light': 'red', 'next_waypoint': None, 'right': None, 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': 'forward', 'light': 'green', 'oncoming': None, 'left': None} [(None, 1.3), ('forward', 3.2649999999999997), ('left', 2), ('right', 0.85)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': None, 'left': None} [(None, 1.9999999999883582), ('forward', 0.3124999999999999), ('left', 0.7632812499999998), ('right', 1.04599609375)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': 'right', 'left': None} [(None, 2), ('forward', 7.2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': None, 'right': None, 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'left', 'right': None, 'light': 'green', 'oncoming': None, 'left': None} [(None, 1.35), ('forward', 0.575), ('left', 10.567349991532847), ('right', 0.855)]
+{'light': 'green', 'next_waypoint': 'left', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'right', 'right': None, 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': 'left', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': None, 'right': None, 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': 'left', 'light': 'red', 'oncoming': None, 'left': None} [(None, 1.1), ('forward', 1.5), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': None, 'light': 'red', 'oncoming': 'left', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 7.1)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': 'forward', 'left': None} [(None, 1.05), ('forward', 0.8), ('left', 0.8), ('right', 1.05)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'left', 'right': None, 'oncoming': 'left', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'right', 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': None, 'light': 'green', 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2.5)]
+{'next_waypoint': 'right', 'right': None, 'light': 'red', 'oncoming': None, 'left': None} [(None, 2), ('forward', 0.6), ('left', 1.1), ('right', 4.624760894708044)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': 'right', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': None, 'light': 'green', 'oncoming': None, 'left': None} [(None, 1.3812499999999999), ('forward', 0.9749999999999999), ('left', 0.675), ('right', 6.50624829724806)]
+{'light': 'red', 'next_waypoint': None, 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'right', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2.1)]
+{'light': 'red', 'next_waypoint': 'right', 'right': None, 'oncoming': 'left', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': 'right', 'light': 'red', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 1.65)]
+{'next_waypoint': 'right', 'right': None, 'light': 'red', 'oncoming': 'right', 'left': None} [(None, 1.1), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': None, 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'right', 'right': 'left', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'left', 'right': None, 'light': 'green', 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2.6), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': None, 'left': 'left'} [(None, 1.4), ('forward', 2.4), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': 'left', 'left': None} [(None, 1.2), ('forward', 3.9375), ('left', 0.95), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'left', 'right': None, 'light': 'red', 'oncoming': None, 'left': None} [(None, 1.9999996066086165), ('forward', 0.04999999999999996), ('left', -0.325), ('right', 0.09750000000000003)]
+{'light': 'red', 'next_waypoint': 'right', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': 'left', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': None, 'light': 'red', 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 0.8), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': None, 'left': None} [(None, 1.32421875), ('forward', 4.626562803160258), ('left', 1.4214599609374998), ('right', 1.2811120605468749)]
+{'light': 'green', 'next_waypoint': 'right', 'right': 'forward', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'right', 'right': None, 'oncoming': 'right', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': None, 'right': 'forward', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': None, 'left': 'forward'} [(None, 1.2), ('forward', 0.8), ('left', 1.0), ('right', 1.2999999999999998)]
+{'light': 'red', 'next_waypoint': 'right', 'right': None, 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': 'right', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': 'forward', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': None, 'oncoming': 'left', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': 'left', 'left': None} [(None, 1.9406249999999998), ('forward', 0.7), ('left', 0.7), ('right', 0.95)]
+{'light': 'green', 'next_waypoint': 'left', 'right': None, 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'left', 'right': 'forward', 'light': 'green', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 7.8), ('right', 2)]
+{'light': 'red', 'next_waypoint': None, 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'left', 'right': None, 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'left', 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'left', 'right': None, 'light': 'red', 'oncoming': 'left', 'left': None} [(None, 1.3), ('forward', 0.8), ('left', 0.8), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': None, 'left': 'left'} [(None, 1.7999999999999998), ('forward', 2), ('left', 2), ('right', 1.35)]
+{'light': 'red', 'next_waypoint': 'left', 'right': None, 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': 'forward', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': 'left', 'light': 'green', 'oncoming': None, 'left': None} [(None, 1.5), ('forward', 3.375), ('left', 2), ('right', 0.9749999999999999)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'red', 'oncoming': 'right', 'left': None} [(None, 1.1), ('forward', 0.8), ('left', 1.2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': 'forward', 'left': None} [(None, 2), ('forward', 2), ('left', 0.8), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': 'left', 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': 'forward', 'light': 'green', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2.5575)]
+{'next_waypoint': 'forward', 'right': 'forward', 'light': 'red', 'oncoming': None, 'left': None} [(None, 1.6), ('forward', 0.7), ('left', 1.2999999999999998), ('right', 1.75)]
+{'next_waypoint': 'left', 'right': None, 'light': 'green', 'oncoming': 'right', 'left': 'right'} [(None, 1.5), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'right', 'right': None, 'oncoming': None, 'left': 'right'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'forward', 'right': None, 'light': 'green', 'oncoming': None, 'left': 'forward'} [(None, 1.1), ('forward', 3.5862499999999997), ('left', 0.85), ('right', 2)]
+{'light': 'green', 'next_waypoint': 'forward', 'right': 'right', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'light': 'red', 'next_waypoint': 'forward', 'right': None, 'oncoming': None, 'left': 'forward'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+{'next_waypoint': 'right', 'right': 'left', 'light': 'green', 'oncoming': None, 'left': None} [(None, 2), ('forward', 2), ('left', 1.5499999999999998), ('right', 2)]
+{'next_waypoint': 'right', 'right': None, 'light': 'red', 'oncoming': None, 'left': 'left'} [(None, 2), ('forward', 2), ('left', 2), ('right', 8.05)]
+{'light': 'green', 'next_waypoint': 'left', 'right': None, 'oncoming': 'right', 'left': 'right'} [(None, 2), ('forward', 2), ('left', 2), ('right', 2)]
+```
 
 
-Below are some results from different combinations of state:
 
-**waypoint + light**
-* overall_iterations:  693
-* overall_simulations:  50
-* total_sucess:  48
-* **sucess_rate:  96.0 %**
+Below are some results from different input combinations:
 
 **waypoint + light + left + right + oncoming**
-* overall_iterations:  681
-* overall_simulations:  50
-* total_sucess:  45
-* **sucess_rate:  90.0 %**
+* overall_iterations:  1403
+* overall_simulations:  100
+* total_sucess:  98
+* self.gamma:  1.0
+* sucess_rate:  98.0 %
 
-**waypoint + light + oncoming**
-* overall_iterations:  649
-* overall_simulations:  50
-* total_sucess:  47
-* **sucess_rate:  94.0 %**
+**waypoint + light + left + right + oncoming + deadline**
+* overall_iterations:  1780
+* overall_simulations:  100
+* total_sucess:  80
+* self.gamma:  0.9
+* sucess_rate:  80.0 %
 
-**waypoint + light + left + right**
-* overall_iterations:  737
-* overall_simulations:  50
-* total_sucess:  46
-* **sucess_rate:  92.0 %**
+**waypoint + light**
+* overall_iterations:  1382
+* overall_simulations:  100
+* total_sucess:  95
+* self.gamma:  1.0
+* sucess_rate:  95.0 %
 
-From the above results we can see that the best results of 96%, we have got with the waypoint and light state combination. We can also see from the results where we used all the states, that the success rate was the worst. Most probably the reason is that the the number of iterations was not enough for training the most complex model. On another side we can see that shortest time (number of overall simulations) was achieved with waypoint + light + oncoming combination.
 
+From the above results we can see that the best results of 98%, we have got with the waypoint, light, right, left and oncoming input combination. We can see also interesting results in the case where we have included also deadline input. The input to the model contains most information, but the output results are the worst. The reason is that the deadline input/information does not relate to our rules - is not needed for our action prediction and the total number of states is random/different every iteration.
 
 
 **QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?**
 
-The chosen states waypoint and light gives the best prediction rate but it reaches the destination in an average possible time. Optimal policy would be to have 100% accuracy and use as input all the states. In theory this should be achieved after a lot of iterations. 
+The chosen input waypoint, light, right, left and oncoming gives the best success rate, but it reaches the destination in an average possible time. As mentioned above, by increasing the number of training iterations the general number of steps should increase. Reason is that some states have still been in their initial value 2.
 
 A very useful control of our trained model is our Q-table, where we can see what actions will our model choose with specific sates combination. By observing the final Q-table we can see that all the actions are properly taught if we consider only the included states (light and next_waypoint).
-
-On other side we can observe during the simulation that the model does not handle well situations where left, right or oncoming states are involved. These are the states that we didn't include into our model. 
 
