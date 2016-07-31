@@ -20,8 +20,8 @@ class LearningAgent(Agent):
         #self.state_roots = ['light', 'next_waypoint'] 
         self.Qtable = {}
         #tuning variables
-        self.gamma = 0.9 # discount factor
-        self.alpha = 0.1 # learning rate
+        self.gamma = 0.1 # discount factor
+        self.alpha = 0.9 # learning rate
         self.epsilon = 10 # exploration rate (select random action every x iteration)
         self.overall_simulations = 0
         self.overall_iterations = 0
@@ -179,7 +179,7 @@ def run():
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
-    sim = Simulator(e, update_delay=0.01, display=True)  # create simulator (uses pygame when display=True, if available)
+    sim = Simulator(e, update_delay=0.5, display=True)  # create simulator (uses pygame when display=True, if available)
     # NOTE: To speed up simulation, reduce update_delay and/or set display=False
 
     sim.run(n_trials=100)  # run for a specified number of trials
